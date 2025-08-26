@@ -1,0 +1,8 @@
+{
+  "errors": [
+    {
+      "errorCode": "ERROR_CODE_13",
+      "description": "PersonBirthDate is empty!"
+    }
+  ]
+}

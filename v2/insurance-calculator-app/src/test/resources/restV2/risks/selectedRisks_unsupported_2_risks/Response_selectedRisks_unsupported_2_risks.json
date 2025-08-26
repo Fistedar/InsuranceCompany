@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "errorCode": "ERROR_CODE_9",
+      "description": "Risk Type ic = ICE_FROG not supported!"
+    },
+    {
+      "errorCode": "ERROR_CODE_9",
+      "description": "Risk Type ic = FIRE_FOX not supported!"
+    }
+  ]
+}

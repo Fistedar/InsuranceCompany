@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Insurance Premium Calculation</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --error-color: #e53935;
+            --success-color: #43a047;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+
+        .error-container {
+            background-color: #ffebee;
+            border-left: 4px solid var(--error-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .error-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(229, 57, 53, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .error-code {
+            font-weight: bold;
+            color: var(--error-color);
+        }
+
+        .premium-result {
+            background-color: #e8f5e9;
+            border-left: 4px solid var(--success-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            font-size: 18px;
+        }
+
+        .person-card {
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 4px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .person-form-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Travel Insurance Premium Calculation</h1>
+
+        <form action="/insurance/travel/web/v2" th:object="${request}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="agreementDateFrom">Agreement Start Date</label>
+                    <input type="date" id="agreementDateFrom" th:field="*{agreementDateFrom}">
+                </div>
+
+                <div class="form-group">
+                    <label for="agreementDateTo">Agreement End Date</label>
+                    <input type="date" id="agreementDateTo" th:field="*{agreementDateTo}">
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" th:field="*{country}" placeholder="Enter destination country">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Risks</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_MEDICAL"> Travel Medical
+                        </label>
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_CANCELLATION"> Travel Cancellation
+                        </label>
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_LOSS_BAGGAGE"> Loss of Baggage
+                        </label>
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_THIRD_PARTY_LIABILITY"> Third Party Liability
+                        </label>
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_EVACUATION"> Evacuation
+                        </label>
+                        <label>
+                            <input type="checkbox" name="selectedRisks" value="TRAVEL_SPORT_ACTIVITIES"> Sport Activities
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <button type="submit">Calculate Premium</button>
+                    <button type="button" onclick="clearForm()" class="btn-secondary">Clear</button>
+                </div>
+            </div>
+
+            <h2>Insured Persons</h2>
+            <div id="persons-container">
+                <div class="person-card" th:each="person, iterStat : ${request.personList}" th:data-index="${iterStat.index}">
+                    <h3>Person #<span th:text="${iterStat.index + 1}"></span></h3>
+                    <div class="person-form-grid">
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.personFirstName|">First Name</label>
+                            <input type="text" th:field="*{personList[__${iterStat.index}__].personFirstName}"
+                                   th:id="|personList${iterStat.index}.personFirstName|">
+                        </div>
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.personLastName|">Last Name</label>
+                            <input type="text" th:field="*{personList[__${iterStat.index}__].personLastName}"
+                                   th:id="|personList${iterStat.index}.personLastName|">
+                        </div>
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.personCode|">Personal Code</label>
+                            <input type="text" th:field="*{personList[__${iterStat.index}__].personCode}"
+                                   th:id="|personList${iterStat.index}.personCode|">
+                        </div>
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.travelCost|">Travel Cost</label>
+                            <input type="text" th:field="*{personList[__${iterStat.index}__].travelCost}"
+                                   th:id="|personList${iterStat.index}.travelCost|">
+                        </div>
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.personBirthDate|">Birth Date</label>
+                            <input type="date" th:field="*{personList[__${iterStat.index}__].personBirthDate}"
+                                   th:id="|personList${iterStat.index}.personBirthDate|">
+                        </div>
+                        <div class="form-group">
+                            <label th:for="|personList${iterStat.index}.medicalRiskLimitLevel|">Medical Risk Level</label>
+                            <input type="text" th:field="*{personList[__${iterStat.index}__].medicalRiskLimitLevel}"
+                                   th:id="|personList${iterStat.index}.medicalRiskLimitLevel|">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-danger" th:onclick="|removePerson(${iterStat.index})|">Remove Person</button>
+                </div>
+            </div>
+
+            <button type="button" id="add-person-btn" class="btn-secondary">Add Another Person</button>
+            <button type="submit">Calculate Premium</button>
+        </form>
+    </div>
+
+    <div th:if="${response.errors != null}" class="error-container card">
+        <h2>Validation Errors</h2>
+        <div th:each="error : ${response.errors}" class="error-item">
+            <span class="error-code" th:text="${error.errorCode}"></span>
+            <span th:text="${error.description}"></span>
+        </div>
+    </div>
+
+    <div th:if="${response.agreementPremium != null}" class="premium-result card">
+        <h2>Calculation Result</h2>
+        <p><strong>Agreement Premium:</strong> <span th:text="${response.agreementPremium}"></span></p>
+        <p><strong>Country:</strong> <span th:text="${response.country}"></span></p>
+        <p><strong>Period:</strong>
+            <span th:text="${#temporals.format(response.agreementDateFrom, 'yyyy-MM-dd')}"></span> -
+            <span th:text="${#temporals.format(response.agreementDateTo, 'yyyy-MM-dd')}"></span>
+        </p>
+    </div>
+
+    <div th:if="${response.persons != null}" class="card">
+        <h2>Persons Premium Details</h2>
+        <div th:each="person, iterStat : ${response.persons}" class="person-card">
+            <h3>Person #<span th:text="${iterStat.index + 1}"></span></h3>
+            <p><strong>Name:</strong> <span th:text="${person.personFirstName + ' ' + person.personLastName}"></span></p>
+            <p><strong>Personal Code:</strong> <span th:text="${person.personCode}"></span></p>
+            <p><strong>Birth Date:</strong> <span th:text="${#temporals.format(person.personBirthDate, 'yyyy-MM-dd')}"></span></p>
+            <p><strong>Medical Risk Level:</strong> <span th:text="${person.medicalRiskLimitLevel}"></span></p>
+            <p><strong>Person Premium:</strong> <span th:text="${person.personPremium}"></span></p>
+            <p><strong>Travel Cost:</strong> <span th:text="${person.travelCost}"></span></p>
+
+            <div th:if="${person.risks != null}">
+                <h4>Risks:</h4>
+                <div th:each="risk : ${person.risks}">
+                    <span class="risk-badge" th:text="${risk.riskIc + ': ' + risk.premium}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-person-btn').addEventListener('click', function() {
+        const container = document.getElementById('persons-container');
+        const personCount = container.querySelectorAll('.person-card').length;
+        const newIndex = personCount;
+
+        // Create a hidden input to track the number of persons
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'personList[' + newIndex + ']._index';
+        hiddenInput.value = newIndex;
+
+        const newPersonHtml = `
+            <div class="person-card" data-index="${newIndex}">
+                <h3>Person #${newIndex + 1}</h3>
+                <div class="person-form-grid">
+                    <div class="form-group">
+                        <label for="personList${newIndex}.personFirstName">First Name</label>
+                        <input type="text" id="personList${newIndex}.personFirstName"
+                               name="personList[${newIndex}].personFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="personList${newIndex}.personLastName">Last Name</label>
+                        <input type="text" id="personList${newIndex}.personLastName"
+                               name="personList[${newIndex}].personLastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="personList${newIndex}.personCode">Personal Code</label>
+                        <input type="text" id="personList${newIndex}.personCode"
+                               name="personList[${newIndex}].personCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="personList${newIndex}.travelCost">Travel Cost</label>
+                        <input type="text" id="personList${newIndex}.travelCost"
+                               name="personList[${newIndex}].travelCost" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="personList${newIndex}.personBirthDate">Birth Date</label>
+                        <input type="date" id="personList${newIndex}.personBirthDate"
+                               name="personList[${newIndex}].personBirthDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="personList${newIndex}.medicalRiskLimitLevel">Medical Risk Level</label>
+                        <input type="text" id="personList${newIndex}.medicalRiskLimitLevel"
+                               name="personList[${newIndex}].medicalRiskLimitLevel">
+                    </div>
+                </div>
+                <button type="button" class="btn-danger" onclick="removePerson(${newIndex})">Remove Person</button>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', newPersonHtml);
+        container.appendChild(hiddenInput);
+    });
+
+    function removePerson(index) {
+        const container = document.getElementById('persons-container');
+        const personCards = container.querySelectorAll('.person-card');
+
+        if (personCards.length > 1) {
+            // Remove the card with the matching data-index attribute
+            const cardToRemove = container.querySelector(`.person-card[data-index="${index}"]`);
+            if (cardToRemove) {
+                cardToRemove.remove();
+            }
+            reindexPersons();
+        } else {
+            alert("At least one person must be insured");
+        }
+    }
+    function clearForm() {
+        // Отправляем POST запрос на endpoint очистки
+        fetch('/insurance/travel/web/v2/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        }).then(response => {
+            // После успешного выполнения перезагружаем страницу
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        });
+    }
+
+    function reindexPersons() {
+        const container = document.getElementById('persons-container');
+        const personCards = container.querySelectorAll('.person-card');
+
+        personCards.forEach((card, index) => {
+            // Update the data-index attribute
+            card.setAttribute('data-index', index);
+
+            // Update the title
+            card.querySelector('h3').textContent = `Person #${index + 1}`;
+
+            // Update all input names and IDs
+            const inputs = card.querySelectorAll('input');
+            inputs.forEach(input => {
+                const name = input.name;
+                if (name.startsWith('personList[')) {
+                    const newName = name.replace(/personList\[\d+\]/, `personList[${index}]`);
+                    input.name = newName;
+                    input.id = newName.replace('personList[', 'personList').replace(']', '');
+                }
+            });
+
+            // Update the remove button onclick
+            const button = card.querySelector('button.btn-danger');
+            if (button) {
+                button.setAttribute('onclick', `removePerson(${index})`);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем текущую дату
+        const today = new Date();
+
+        // Устанавливаем дату начала (текущая дата + 1 день)
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() + 1);
+
+        // Устанавливаем дату окончания (текущая дата + 2 дня)
+        const endDate = new Date(today);
+        endDate.setDate(today.getDate() + 2);
+
+        // Форматируем даты в формат YYYY-MM-DD (для input type="date")
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Устанавливаем значения по умолчанию
+        document.getElementById('agreementDateFrom').value = formatDate(startDate);
+        document.getElementById('agreementDateTo').value = formatDate(endDate);
+    });
+</script>
+</body>
+</html>

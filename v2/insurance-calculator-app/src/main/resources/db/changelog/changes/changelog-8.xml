@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
+
+    <changeSet id="22" author="Fistedar">
+        <createTable tableName="agreements">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="date_from" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_to" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="premium" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="23" author="Fistedar">
+        <createIndex tableName="agreements" indexName="ux_unique_uuid">
+            <column name="uuid"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,11 @@
+{
+  "personFirstName" : "Vasja",
+  "personLastName" : "Pupkin",
+  "agreementDateFrom" : "2026-05-25",
+  "personBirthDate": "2000-05-10",
+  "agreementDateTo" : "2026-05-29",
+  "selectedRisks":["TRAVEL_MEDICAL", "TRAVEL_LOSS_BAGGAGE"],
+  "country": "JAVA",
+  "personCode": "123456-12345",
+  "medicalRiskLimitLevel": "LEVEL_15000"
+}

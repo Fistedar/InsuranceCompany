@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "errorCode": "ERROR_CODE_9",
+      "description": "Risk Type ic = BAD_WEATHER not supported!"
+    },
+    {
+      "errorCode": "ERROR_CODE_9",
+      "description": "Risk Type ic = IceFrog not supported!"
+    }
+  ]
+}

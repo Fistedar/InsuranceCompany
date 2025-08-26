@@ -1,0 +1,8 @@
+{
+  "errors": [
+    {
+      "errorCode": "ERROR_CODE_21",
+      "description": "PersonCode = 1234 invalid format!"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "errors": [
+    {
+      "message": "ERROR_CODE_9",
+      "description": "Risk Type ic = BAD_WEATHER not supported!"
+    },
+    {
+      "message": "ERROR_CODE_9",
+      "description": "Risk Type ic = IceFrog not supported!"
+    }
+  ],
+  "personFirstName": null,
+  "personLastName": null,
+  "agreementDateFrom": null,
+  "agreementDateTo": null,
+  "agreementPremium": null,
+  "country": null,
+  "risks": null,
+  "medicalRiskLimitLevel": null
+}

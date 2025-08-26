@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "message": "ERROR_CODE_12",
+      "description": "PersonBirthDate in future!"
+    }
+  ],
+  "personFirstName": null,
+  "personLastName": null,
+  "agreementDateFrom": null,
+  "agreementDateTo": null,
+  "agreementPremium": null,
+  "country": null,
+  "risks": null,
+  "medicalRiskLimitLevel": null
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
+
+    <!--Тестовые данные в таблицу-->
+    <changeSet id="31" author="Fistedar">
+        <sql>
+            INSERT into agreements(date_from, date_to, country, uuid, premium)
+            values ('2026-05-25', '2026-05-29', 'SPAIN', '956dbdbf-d403-48be-bfcb-bd19ee356a27', 33.50)
+        </sql>
+    </changeSet>
+
+    <changeSet id="32" author="Fistedar">
+        <sql>
+            INSERT INTO persons(first_name, last_name, person_code, birth_date)
+            values ('Vasja', 'Pupkin', 1232, '2000-05-29'),
+                   ('Petja', 'Pupkin', 1234, '1950-02-28')
+        </sql>
+    </changeSet>
+
+    <changeSet id="33" author="Fistedar">
+        <sql>
+            INSERT INTO agreement_person(person_id, agreement_id, medical_risk)
+            values (1, 1, 'LEVEL_10000'),
+                   (2, 1, 'LEVEL_20000')
+        </sql>
+    </changeSet>
+
+    <changeSet id="34" author="Fistedar">
+        <sql>
+            INSERT INTO agreement_person_risks(AGREEMENT_PERSON_ID, RISK_IC, PREMIUM)
+            VALUES (1, 'TRAVEL_MEDICAL', 11.00),
+                   (2, 'TRAVEL_MEDICAL', 22.50)
+        </sql>
+    </changeSet>
+
+    <changeSet id="35" author="Fistedar">
+        <sql>
+            INSERT INTO selected_risks(SELECTED_RISK, AGREEMENT_ID)
+            values ('TRAVEL_MEDICAL', 1)
+        </sql>
+    </changeSet>
+</databaseChangeLog>

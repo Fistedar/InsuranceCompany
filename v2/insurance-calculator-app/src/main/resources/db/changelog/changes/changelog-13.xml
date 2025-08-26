@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
+
+
+    <changeSet id="36" author="Fistedar">
+        <createTable tableName="travel_cost_coefficient">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="travel_cost_from" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="travel_cost_to" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coefficient" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="37" author="Fistedar">
+        <sql>
+            INSERT INTO travel_cost_coefficient(travel_cost_from, travel_cost_to, coefficient)
+            values (0, 5000, 10),
+                   (5000, 10000, 30),
+                   (10000, 20000, 100),
+                   (20000, 999999, 500)
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

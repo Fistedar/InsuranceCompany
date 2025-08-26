@@ -1,0 +1,6 @@
+rootProject.name = 'InsuranceCompany'
+
+include 'v1'
+include 'v2:insurance-calculator-app'
+include 'v2:doc-generator'
+include 'v2:black-list'

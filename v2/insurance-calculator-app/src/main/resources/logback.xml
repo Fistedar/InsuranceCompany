@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOGS" value="./logs"/>
+
+    <!-- Консольный аппендер -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Файловый общий аппендер -->
+    <appender name="FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/application.log</file>
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/application-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Аппендер для запросов/ответов -->
+    <appender name="REQUEST_RESPONSE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/requests-responses.log</file>  <!-- Отдельный файл -->
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/requests-responses-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Основной логгер -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </root>
+
+    <!-- Специальный логгер для запросов/ответов -->
+    <logger name="REQUEST_RESPONSE_LOGGER" level="INFO" additivity="false">
+        <appender-ref ref="REQUEST_RESPONSE_APPENDER"/>
+    </logger>
+
+    <!-- Дополнительные настройки -->
+    <logger name="com.mycompany" level="DEBUG"/>
+</configuration>

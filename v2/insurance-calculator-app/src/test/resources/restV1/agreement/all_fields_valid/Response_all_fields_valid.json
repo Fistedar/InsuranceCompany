@@ -1,0 +1,17 @@
+{
+  "personFirstName": "Vasja",
+  "personLastName": "Pupkin",
+  "agreementPremium": 5.28,
+  "agreementDateFrom": "2026-05-25",
+  "agreementDateTo": "2026-05-29",
+  "personBirthDate": "2000-05-10",
+  "medicalRiskLimitLevel": "LEVEL_15000",
+  "personCode": "123456-12345",
+  "risks": [
+    {
+      "riskIc": "TRAVEL_MEDICAL",
+      "premium": 5.28
+    }
+  ],
+  "country": "LATVIA"
+}

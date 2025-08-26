@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
+
+    <changeSet id="40" author="Fistedar">
+        <createTable tableName="country_safety_rating_coefficient">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="country" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coefficient" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="41" author="Fistedar">
+        <sql>
+            INSERT INTO country_safety_rating_coefficient(country, coefficient)
+            values ('LATVIA', 5),
+                   ('SPAIN', 8),
+                   ('JAPAN', 9)
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

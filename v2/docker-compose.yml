@@ -1,0 +1,92 @@
+version: '3.8'
+
+networks:
+  insurance-network:
+    driver: bridge
+
+services:
+  insurance_calculator_db:
+    networks: [ insurance-network ]
+    container_name: insurance-mysql-container
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: RootR1ta
+      MYSQL_DATABASE: insurance_db
+      MYSQL_USER: insurance_user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3306:3306"
+
+
+  black_list_db:
+    networks: [ insurance-network ]
+    container_name: black-list-mysql-container
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: RootR1ta
+      MYSQL_DATABASE: black_list_db
+      MYSQL_USER: black_list_user
+      MYSQL_PASSWORD: black_list_password
+    ports:
+      - "3307:3307"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    networks: [ insurance-network ]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    networks: [ insurance-network ]
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"  # Для подключения с хоста
+      - "9092:9092"    # Для совместимости (если нужно)
+
+  pdf-generator:
+    networks: [ insurance-network ]
+    image: pdf-generator-service:latest
+    container_name: pdf-generator
+    depends_on:
+      - kafka
+    volumes:
+      # Связываем папку `./generated-pdfs` на хосте с `/app/generated-pdfs` в контейнере
+      - ./generated-pdfs:/app/generated-pdfs
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  insurance-calculator-app:
+    networks: [ insurance-network ]
+    container_name: insurance-app
+    image: insurance-calculator
+    ports:
+      - "8080:8080"
+    depends_on:
+      - insurance_calculator_db
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql-container
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Для внутреннего подключения
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    networks: [ insurance-network ]
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+    depends_on:
+      - kafka

@@ -1,0 +1,37 @@
+{
+  "agreementDateFrom": "2026-05-25",
+  "agreementDateTo": "2026-05-29",
+  "uuid": "956dbdbf-d403-48be-bfcb-bd19ee356a27",
+  "country": "SPAIN",
+  "agreementPremium": 33.50,
+  "persons": [
+    {
+      "personFirstName": "Vasja",
+      "personLastName": "Pupkin",
+      "personPremium": 11.00,
+      "risks": [
+        {
+          "riskIc": "TRAVEL_MEDICAL",
+          "premium": 11.00
+        }
+      ],
+      "medicalRiskLimitLevel": "LEVEL_10000",
+      "personCode": "1232",
+      "personBirthDate": "2000-05-29"
+    },
+    {
+      "personFirstName": "Petja",
+      "personLastName": "Pupkin",
+      "personPremium": 22.50,
+      "risks": [
+        {
+          "riskIc": "TRAVEL_MEDICAL",
+          "premium": 22.50
+        }
+      ],
+      "medicalRiskLimitLevel": "LEVEL_20000",
+      "personCode": "1234",
+      "personBirthDate": "1950-02-28"
+    }
+  ]
+}

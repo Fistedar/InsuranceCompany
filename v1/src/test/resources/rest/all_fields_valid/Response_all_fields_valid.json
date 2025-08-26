@@ -1,0 +1,25 @@
+{
+  "errors": null,
+  "personFirstName": "Vasja",
+  "personLastName": "Pupkin",
+  "agreementPremium": 5.28,
+  "agreementDateFrom": "2026-05-25",
+  "agreementDateTo": "2026-05-29",
+  "personBirthDate": "2000-05-10",
+  "medicalRiskLimitLevel": "LEVEL_15000",
+  "risks": [
+    {
+      "riskIc": "TRAVEL_MEDICAL",
+      "premium": 5.28
+    },
+    {
+      "riskIc": "TRAVEL_CANCELLATION",
+      "premium": 0.00
+    },
+    {
+      "riskIc": "TRAVEL_LOSS_BAGGAGE",
+      "premium": 0.00
+    }
+  ],
+  "country": "LATVIA"
+}

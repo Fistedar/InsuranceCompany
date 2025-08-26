@@ -1,0 +1,172 @@
+plugins {
+    id 'java'
+//    id 'war'  для генерации WAR
+    id 'org.springframework.boot' version '3.2.5' // для Fat JAR
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'maven-publish'
+    id 'com.google.cloud.tools.jib' version '3.4.0'
+    id "com.avast.gradle.docker-compose" version "0.16.11"
+}
+
+version = '1.0.2' // Добавляем версию проекта здесь
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Базы данных
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation 'com.h2database:h2:2.2.224'
+    implementation 'org.liquibase:liquibase-core:4.27.0'
+
+    // Spring Boot starters
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.5'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.5'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.2.5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Hibernate
+    implementation 'org.hibernate:hibernate-core:6.5.0.Final'
+
+    // Логирование
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.5.13'
+    implementation 'ch.qos.logback:logback-core:1.5.13'
+
+    // Jackson (JSON/XML)
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+    // Вспомогательные библиотеки
+    implementation 'com.google.guava:guava:32.1.3-jre'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    // Тестирование
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.5'
+    testImplementation 'com.h2database:h2:2.2.224'
+    testImplementation 'uk.org.webcompere:model-assert:1.0.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.38.0'
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Конфигурация для Thin JAR (без зависимостей)
+jar {
+    enabled = false // Отключен, так как используем bootJar
+    archiveBaseName = 'insurance-thin'
+    manifest {
+        attributes 'Main-Class': 'org.javaguru.travel.insurance.InsuranceApplication'
+    }
+}
+
+// Конфигурация для Fat JAR (Spring Boot)
+bootJar {
+    enabled = true
+    archiveFileName = "insurance-calculator-${project.version}.jar"
+}
+
+// Конфигурация для Fat WAR (со встроенными зависимостями)
+//war {
+//    enabled = false // Отключен, так как используем bootJar
+//    archiveBaseName = 'insurance-fat'
+//    from {
+//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // Указываем, какой артефакт публикуем (Fat JAR из Spring Boot)
+            artifact bootJar
+
+            // Координаты Maven (как в <groupId>, <artifactId>, <version>)
+            groupId = 'org.javaguru'
+            artifactId = 'insurance-calculator'
+            version = version
+
+            // Метаданные для pom.xml
+            pom {
+                name = 'Insurance Calculator Application'
+                description = 'Application to calculate travel insurance premium'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        mavenLocal()  // Публикуем в локальный Maven-репозиторий (~/.m2/repository)
+        // Альтернатива: удалённый репозиторий (Nexus/Artifactory)
+        // maven {
+        //     url "https://repo.example.com/releases"
+        //     credentials {
+        //         username = "user"
+        //         password = "password"
+        //     }
+        // }
+    }
+}
+
+tasks.register('k6Test', Exec) {
+    commandLine 'k6', 'run', 'src/test/k6/travel_loadtest.js'
+}
+
+dockerCompose {
+    useComposeFiles = ['docker-compose.yml']
+}
+
+tasks.named('jibDockerBuild') {
+    dependsOn 'build'
+    finalizedBy 'cleanOldDockerImages'// Сначала соберет JAR, потом создаст образ
+}
+
+// Регистрируем задачу для удаления старых образов
+tasks.register('cleanOldDockerImages', Exec) {
+    commandLine 'docker', 'image', 'prune', '-f'
+}
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre'
+    }
+    to {
+        image = 'insurance-calculator'
+        tags = [version]
+    }
+    container {
+        ports = ['8080']
+        extraDirectories {
+            paths = ['build/libs', '.']  // jar в build/libs, скрипт в корне
+            permissions = [
+                    '/insurance-calculator-1.0.2.jar': '755',
+                    '/wait-for-it.sh': '755'
+            ]
+        }
+        entrypoint = [
+                "./wait-for-it.sh",
+                "insurance-mysql-container:3306",
+                "--",
+                "./wait-for-it.sh",
+                "kafka:9092",
+                "--",
+                "java",
+                "-jar",
+                "insurance-calculator-1.0.2.jar"
+        ]
+    }
+}

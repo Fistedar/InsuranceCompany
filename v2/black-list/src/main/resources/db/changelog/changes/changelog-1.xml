@@ -6,25 +6,20 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd">
 
     <changeSet author="Fistedar" id="1">
-        <createTable tableName="classifiers">
-            <column autoIncrement="true" name="id" type="BIGINT">
+        <createTable tableName="persons">
+            <column name="person_code" type="varchar(100)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="title" type="VARCHAR(200)">
+            <column name="person_firstName" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="description" type="VARCHAR(100)">
+            <column name="person_lastName" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="blackListed" type="boolean">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-
-    <changeSet author="Fistedar" id="2">
-        <createIndex indexName="ix_classifiers_title"
-                     tableName="classifiers"
-                     unique="true">
-            <column name="title"/>
-        </createIndex>
     </changeSet>
 
 </databaseChangeLog>

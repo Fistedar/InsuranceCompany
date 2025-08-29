@@ -1,7 +1,8 @@
 package org.fistedar.black.list.core.service;
 
 import org.fistedar.black.list.core.api.command.BlacklistCoreCommand;
+import org.fistedar.black.list.core.api.command.BlacklistCoreResult;
 
 public interface BlacklistService {
-    BlacklistCoreCommand checkPersonFromBlacklist(BlacklistCoreCommand command);
+    BlacklistCoreResult checkPersonFromBlacklist(BlacklistCoreCommand command);
 }

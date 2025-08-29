@@ -20,4 +20,8 @@ public class BlacklistCoreResult {
     public boolean hasErrors() {
         return errors != null && !errors.isEmpty();
     }
+
+    public BlacklistCoreResult(List<ValidationErrorDTO> errors) {
+        this.errors = errors;
+    }
 }

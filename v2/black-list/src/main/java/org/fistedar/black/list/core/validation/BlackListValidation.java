@@ -3,8 +3,8 @@ package org.fistedar.black.list.core.validation;
 import org.fistedar.black.list.core.api.dto.PersonDTO;
 import org.fistedar.black.list.core.api.dto.ValidationErrorDTO;
 
-import java.util.Optional;
+import java.util.List;
 
-interface PersonValidation {
-    Optional<ValidationErrorDTO> validate(PersonDTO person);
+public interface BlackListValidation {
+    List<ValidationErrorDTO> validate(PersonDTO person);
 }

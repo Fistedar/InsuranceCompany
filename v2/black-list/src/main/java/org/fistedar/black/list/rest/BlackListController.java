@@ -2,6 +2,7 @@ package org.fistedar.black.list.rest;
 
 import com.google.common.base.Stopwatch;
 import lombok.RequiredArgsConstructor;
+import org.fistedar.black.list.core.service.BlacklistService;
 import org.fistedar.black.list.dto.BlackListRequest;
 import org.fistedar.black.list.dto.BlackListResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BlackListController {
 
     private final RequestResponseLogger logger;
+    private final BlacklistService service;
 
     @GetMapping("/")
     public BlackListResponse getBlackList(@RequestBody final BlackListRequest blackListRequest) {
@@ -23,5 +25,10 @@ public class BlackListController {
 
         logger.logTime(stopwatch);
         return new BlackListResponse();
+    }
+
+    private BlackListResponse checkPerson(final BlackListRequest blackListRequest) {
+
+        service.checkPersonFromBlacklist()
     }
 }

@@ -1,5 +1,6 @@
 package org.fistedar.black.list.rest;
 
+import com.google.common.base.Stopwatch;
 import lombok.RequiredArgsConstructor;
 import org.fistedar.black.list.dto.BlackListRequest;
 import org.fistedar.black.list.dto.BlackListResponse;
@@ -17,6 +18,10 @@ public class BlackListController {
 
     @GetMapping("/")
     public BlackListResponse getBlackList(@RequestBody final BlackListRequest blackListRequest) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        logger.logRequest(blackListRequest);
+
+        logger.logTime(stopwatch);
         return new BlackListResponse();
     }
 }

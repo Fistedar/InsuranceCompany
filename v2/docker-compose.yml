@@ -81,6 +81,17 @@ services:
       SPRING_PROFILES_ACTIVE: mysql-container
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Для внутреннего подключения
 
+  black-list-app:
+    networks: [ insurance-network ]
+    container_name: black-list-app
+    image: black-list
+    ports:
+      - "8081-8081"
+    depends_on:
+      - black_list_db
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql-container
+
   kafdrop:
     image: obsidiandynamics/kafdrop
     networks: [ insurance-network ]

@@ -8,7 +8,7 @@ plugins {
     id "com.avast.gradle.docker-compose" version "0.16.11"
 }
 
-version = '1.0.2' // Добавляем версию проекта здесь
+version = '1.0.1' // Добавляем версию проекта здесь
 
 repositories {
     mavenCentral()
@@ -61,16 +61,16 @@ test {
 // Конфигурация для Thin JAR (без зависимостей)
 jar {
     enabled = false // Отключен, так как используем bootJar
-    archiveBaseName = 'insurance-thin'
+    archiveBaseName = 'black-list-thin'
     manifest {
-        attributes 'Main-Class': 'org.javaguru.travel.insurance.InsuranceApplication'
+        attributes 'Main-Class': 'org.fistedar.black.list.BlackListApplication'
     }
 }
 
 // Конфигурация для Fat JAR (Spring Boot)
 bootJar {
     enabled = true
-    archiveFileName = "insurance-calculator-${project.version}.jar"
+    archiveFileName = "black-list-${project.version}.jar"
 }
 
 // Конфигурация для Fat WAR (со встроенными зависимостями)
@@ -89,14 +89,14 @@ publishing {
             artifact bootJar
 
             // Координаты Maven (как в <groupId>, <artifactId>, <version>)
-            groupId = 'org.javaguru'
-            artifactId = 'insurance-calculator'
+            groupId = 'org.fistedar'
+            artifactId = 'black-list'
             version = version
 
             // Метаданные для pom.xml
             pom {
-                name = 'Insurance Calculator Application'
-                description = 'Application to calculate travel insurance premium'
+                name = 'Black List Application'
+                description = 'Black list app to add and check persons on black list'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -142,7 +142,7 @@ jib {
         image = 'eclipse-temurin:21-jre'
     }
     to {
-        image = 'insurance-calculator'
+        image = 'black-list'
         tags = [version]
     }
     container {
@@ -150,20 +150,17 @@ jib {
         extraDirectories {
             paths = ['build/libs', '.']  // jar в build/libs, скрипт в корне
             permissions = [
-                    '/insurance-calculator-1.0.2.jar': '755',
+                    '/black-list-1.0.1.jar': '755',
                     '/wait-for-it.sh': '755'
             ]
         }
         entrypoint = [
                 "./wait-for-it.sh",
-                "mysql-container:3306",
-                "--",
-                "./wait-for-it.sh",
-                "kafka:9092",
+                "mysql-container:3307",
                 "--",
                 "java",
                 "-jar",
-                "insurance-calculator-1.0.2.jar"
+                "black-list-1.0.1.jar"
         ]
     }
 }

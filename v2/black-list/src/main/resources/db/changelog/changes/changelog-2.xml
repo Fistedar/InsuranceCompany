@@ -7,7 +7,7 @@
 
     <changeSet id="2" author="Fistedar">
         <sql>
-            INSERT INTO persons(person_code, person_firstName, person_lastName, blackListed)
+            INSERT INTO persons(person_code, person_first_name, person_last_name, black_listed)
             values ('123456-12345', 'Petya', 'Kazanov', true)
         </sql>
     </changeSet>

@@ -18,15 +18,15 @@ import lombok.Setter;
 public class PersonEntity {
 
     @Id
-    @Column(name = "personCode", nullable = false)
+    @Column(name = "person_code", nullable = false)
     private String personCode;
 
-    @Column(name = "person_firstName",nullable = false)
+    @Column(name = "person_first_name", nullable = false)
     private String personFirstName;
 
-    @Column(name = "person_lastName", nullable = false)
+    @Column(name = "person_last_name", nullable = false)
     private String personLastName;
 
-    @Column(name = "blackListed", nullable = false)
+    @Column(name = "black_listed", nullable = false)
     private Boolean blackListed;
 }

@@ -10,13 +10,13 @@
             <column name="person_code" type="varchar(100)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="person_firstName" type="VARCHAR(50)">
+            <column name="person_first_name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="person_lastName" type="VARCHAR(50)">
+            <column name="person_last_name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="blackListed" type="boolean">
+            <column name="black_listed" type="boolean">
                 <constraints nullable="false"/>
             </column>
         </createTable>

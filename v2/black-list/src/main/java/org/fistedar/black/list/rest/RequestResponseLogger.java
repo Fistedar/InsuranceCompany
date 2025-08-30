@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import lombok.RequiredArgsConstructor;
 import org.fistedar.black.list.dto.BlackListRequest;
+import org.fistedar.black.list.dto.BlackListResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,9 @@ public class RequestResponseLogger {
     private final Logger log = LoggerFactory.getLogger("REQUEST_RESPONSE_LOGGER");
     private final ObjectMapper objectMapper;
 
-    void logResponse(BlackListRequest request) {
+    void logResponse(BlackListResponse response) {
         try {
-            log.info("Response: {}", objectMapper.writeValueAsString(request));
+            log.info("Response: {}", objectMapper.writeValueAsString(response));
         } catch (JsonProcessingException e) {
             log.error("Error to convert request to JSON", e);
         }

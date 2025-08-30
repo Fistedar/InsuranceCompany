@@ -15,12 +15,14 @@ import java.util.List;
 class BlacklistServiceImpl implements BlacklistService {
 
     private final BlackListValidation blackListValidation;
+    private final BlacklistChecker blacklistChecker;
 
     @Override
     public BlacklistCoreResult checkPersonFromBlacklist(BlacklistCoreCommand command) {
         List<ValidationErrorDTO> errors = blackListValidation.validate(command.getPerson());
         if (errors.isEmpty()) {
-            return buildSuccessResponse(command);
+            PersonDTO person = blacklistChecker.isBlacklisted(command);
+            return buildSuccessResponse(person);
         } else {
             return buildErrorResponse(errors);
         }
@@ -30,8 +32,7 @@ class BlacklistServiceImpl implements BlacklistService {
         return new BlacklistCoreResult(errors);
     }
 
-    private BlacklistCoreResult buildSuccessResponse(BlacklistCoreCommand command) {
-        PersonDTO person = command.getPerson();
+    private BlacklistCoreResult buildSuccessResponse(PersonDTO person) {
         return new BlacklistCoreResult(null, person);
     }
 }

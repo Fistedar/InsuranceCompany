@@ -156,7 +156,7 @@ jib {
         }
         entrypoint = [
                 "./wait-for-it.sh",
-                "mysql-container:3307",
+                "black-list-mysql-container:3306",
                 "--",
                 "java",
                 "-jar",

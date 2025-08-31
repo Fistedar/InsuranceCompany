@@ -16,7 +16,7 @@
             <column name="person_last_name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="black_listed" type="boolean">
+            <column name="black_listed" type="bit(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

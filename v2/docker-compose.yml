@@ -28,7 +28,7 @@ services:
       MYSQL_USER: black_list_user
       MYSQL_PASSWORD: black_list_password
     ports:
-      - "3307:3307"
+      - "3307:3306"
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0

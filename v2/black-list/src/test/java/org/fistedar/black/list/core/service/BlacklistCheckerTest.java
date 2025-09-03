@@ -30,25 +30,29 @@ class BlacklistCheckerTest {
     void shouldReturnTrue_whenPersonIsBlacklisted() {
         PersonDTO person = new PersonDTO();
         when(command.getPerson()).thenReturn(person);
-        when(personsRepository.findByPersonCode(person.getPersonCode()))
+        when(personsRepository.findByPersonCodeAndPersonFirstNameAndPersonLastName(person.getPersonCode(),person.getPersonFirstName(),
+                person.getPersonLastName()))
                 .thenReturn(Optional.of(new PersonEntity()));
 
         PersonDTO expectedPerson = blacklistChecker.isBlacklisted(command);
 
         assertTrue(expectedPerson.getBlackListed());
-        verify(personsRepository).findByPersonCode(person.getPersonCode());
+        verify(personsRepository).findByPersonCodeAndPersonFirstNameAndPersonLastName(person.getPersonCode(),person.getPersonFirstName(),
+                person.getPersonLastName());
     }
 
     @Test
     void shouldReturnFalse_whenPersonIsNotBlacklisted() {
         PersonDTO person = new PersonDTO();
         when(command.getPerson()).thenReturn(person);
-        when(personsRepository.findByPersonCode(person.getPersonCode()))
+        when(personsRepository.findByPersonCodeAndPersonFirstNameAndPersonLastName(person.getPersonCode(),person.getPersonFirstName(),
+                person.getPersonLastName()))
                 .thenReturn(Optional.empty());
 
         PersonDTO expectedPerson = blacklistChecker.isBlacklisted(command);
 
         assertFalse(expectedPerson.getBlackListed());
-        verify(personsRepository).findByPersonCode(person.getPersonCode());
+        verify(personsRepository).findByPersonCodeAndPersonFirstNameAndPersonLastName(person.getPersonCode(),person.getPersonFirstName(),
+                person.getPersonLastName());
     }
 }

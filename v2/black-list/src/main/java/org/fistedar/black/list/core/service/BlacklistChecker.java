@@ -14,7 +14,12 @@ class BlacklistChecker {
 
     public PersonDTO isBlacklisted(BlacklistCoreCommand command) {
         PersonDTO personDTO = command.getPerson();
-        personDTO.setBlackListed(personsRepository.findByPersonCode(personDTO.getPersonCode()).isPresent());
+        String personCode = personDTO.getPersonCode();
+        String personFirstName = personDTO.getPersonFirstName();
+        String personLastName = personDTO.getPersonLastName();
+        Boolean inBlackList = personsRepository.findByPersonCodeAndPersonFirstNameAndPersonLastName(
+                personCode,personFirstName,personLastName).isPresent();
+        personDTO.setBlackListed(inBlackList);
         return personDTO;
     }
 

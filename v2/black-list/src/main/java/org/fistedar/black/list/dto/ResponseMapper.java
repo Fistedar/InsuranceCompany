@@ -18,6 +18,7 @@ public class ResponseMapper {
                 .personCode(personDTO.getPersonCode())
                 .personFirstName(personDTO.getPersonFirstName())
                 .personLastName(personDTO.getPersonLastName())
+                .blackListed(coreResult.getPerson().getBlackListed())
                 .build();
     }
 }

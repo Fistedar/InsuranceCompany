@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface PersonsRepository extends JpaRepository<PersonEntity, String> {
-    Optional<PersonEntity> findByPersonCode(String personCode);
+    Optional<PersonEntity> findByPersonCodeAndPersonFirstNameAndPersonLastName(String personCode, String personFirstName, String personLastName);
 }

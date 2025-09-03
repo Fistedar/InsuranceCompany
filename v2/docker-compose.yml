@@ -86,7 +86,7 @@ services:
     container_name: black-list-app
     image: black-list
     ports:
-      - "8081-8081"
+      - "8081:8081"
     depends_on:
       - black_list_db
     environment:

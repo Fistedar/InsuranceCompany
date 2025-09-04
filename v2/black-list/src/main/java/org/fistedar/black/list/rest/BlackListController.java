@@ -8,8 +8,6 @@ import org.fistedar.black.list.core.api.dto.PersonDTO;
 import org.fistedar.black.list.core.service.BlacklistService;
 import org.fistedar.black.list.dto.BlackListRequest;
 import org.fistedar.black.list.dto.BlackListResponse;
-import org.fistedar.black.list.dto.PersonMapper;
-import org.fistedar.black.list.dto.ResponseMapper;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +20,7 @@ public class BlackListController {
 
     private final RequestResponseLogger logger;
     private final BlacklistService service;
-    private final PersonMapper personMapper;
-    private final ResponseMapper responseMapper;
+    private final MapperDTO mapper;
 
     @PostMapping(path = "/",
             consumes = "application/json",
@@ -38,9 +35,9 @@ public class BlackListController {
     }
 
     private BlackListResponse checkPerson(final BlackListRequest blackListRequest) {
-        PersonDTO personDTO = personMapper.personDTOMapper(blackListRequest.getPerson());
+        PersonDTO personDTO = mapper.mapRequestToPerson(blackListRequest);
         BlacklistCoreCommand command = new BlacklistCoreCommand(personDTO);
         BlacklistCoreResult result = service.checkPersonFromBlacklist(command);
-        return responseMapper.responseMapper(result);
+        return mapper.mapperDTO(result);
     }
 }

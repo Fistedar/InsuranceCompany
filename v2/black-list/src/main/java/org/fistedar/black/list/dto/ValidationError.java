@@ -1,8 +1,6 @@
 package org.fistedar.black.list.dto;
 
-
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,11 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class PersonResponseDTO {
+public class ValidationError {
 
-    private String personFirstName;
-    private String personLastName;
-    private String personCode;
-    private Boolean blackListed;
+    private String errorCode;
+    private String description;
 }

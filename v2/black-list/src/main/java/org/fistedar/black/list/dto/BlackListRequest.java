@@ -13,5 +13,7 @@ import lombok.Setter;
 @Builder
 public class BlackListRequest {
 
-    private PersonRequestDTO person;
+    private String personFirstName;
+    private String personLastName;
+    private String personCode;
 }

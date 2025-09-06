@@ -17,7 +17,6 @@ public class BlackListPersonValidation extends TravelPersonValidationFieldsImpl 
 
     private final ValidationErrorFactory errorFactory;
     private final BlackListChecker blackListChecker;
-    private final String ERROR_CODE = "ERROR_CODE_24";
 
     @Override
     public Optional<ValidationErrorDTO> validate(AgreementDTO agreement, PersonDTO person) {
@@ -31,7 +30,7 @@ public class BlackListPersonValidation extends TravelPersonValidationFieldsImpl 
     private Optional<ValidationErrorDTO> checkBlackList(PersonDTO person) {
         if (blackListChecker.checkBlackList(person)) {
             Placeholder placeholder = new Placeholder("PersonCode", person.getPersonCode());
-            return Optional.of(errorFactory.buildError(ERROR_CODE,placeholder));
+            return Optional.of(errorFactory.buildError("ERROR_CODE_24",placeholder));
         } else {
             return Optional.empty();
         }

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class EmptyPersonCodeAgreementValidationField extends TravelPersonValidationFieldsImpl {
+class EmptyPersonCodeAgreementValidationField extends TravelPersonValidationFieldsImpl {
 
     private final ValidationErrorFactory errorFactory;
     private final static String ERROR_CODE = "ERROR_CODE_17";

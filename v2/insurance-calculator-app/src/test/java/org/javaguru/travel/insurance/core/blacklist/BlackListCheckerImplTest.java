@@ -1,25 +1,25 @@
 package org.javaguru.travel.insurance.core.blacklist;
 
 import org.javaguru.travel.insurance.core.api.dto.PersonDTO;
-import org.javaguru.travel.insurance.core.blacklist.dto.BlackListRequest;
 import org.javaguru.travel.insurance.core.blacklist.dto.BlackListResponse;
+import org.javaguru.travel.insurance.core.exceptions.blacklist.BlackListClientException;
+import org.javaguru.travel.insurance.core.exceptions.blacklist.BlackListUnavailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
+import org.springframework.http.HttpEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,8 +27,6 @@ class BlackListCheckerImplTest {
 
     @Mock
     private PersonDTO personDTO;
-    @Mock
-    private Logger log;
     @Mock
     private BlackListResponse response;
     @Mock
@@ -43,7 +41,7 @@ class BlackListCheckerImplTest {
 
     @Test
     void shouldReturnTrue_whenPersonOnBlackList() {
-        when(restTemplate.postForObject(eq("Test"), any(BlackListRequest.class), eq(BlackListResponse.class)))
+        when(restTemplate.postForObject(eq("Test"), any(HttpEntity.class), eq(BlackListResponse.class)))
                 .thenReturn(response);
         when(response.getBlackListed()).thenReturn(true);
 
@@ -52,18 +50,17 @@ class BlackListCheckerImplTest {
 
     @Test
     void shouldThrowException_whenAppUnavailable() {
-        when(restTemplate.postForObject(eq("Test"), any(BlackListRequest.class), eq(BlackListResponse.class)))
+        when(restTemplate.postForObject(eq("Test"), any(HttpEntity.class), eq(BlackListResponse.class)))
                 .thenThrow(ResourceAccessException.class);
 
-        assertFalse(blackListChecker.checkBlackList(personDTO));
-        verify(log).warn("BlackList app unavailable, proceeding without check");
+        assertThrows(BlackListUnavailableException.class, () -> blackListChecker.checkBlackList(personDTO));
     }
 
     @Test
     void shouldThrowException_whenClientError() {
-        when(restTemplate.postForObject(eq("Test"), any(BlackListRequest.class), eq(BlackListResponse.class)))
+        when(restTemplate.postForObject(eq("Test"), any(HttpEntity.class), eq(BlackListResponse.class)))
                 .thenThrow(HttpClientErrorException.class);
 
-        assertFalse(blackListChecker.checkBlackList(personDTO));
+        assertThrows(BlackListClientException.class, () -> blackListChecker.checkBlackList(personDTO));
     }
 }

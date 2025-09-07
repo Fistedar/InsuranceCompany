@@ -128,7 +128,7 @@ dockerCompose {
 }
 
 tasks.named('jibDockerBuild') {
-    dependsOn 'build'
+    dependsOn(build)
     finalizedBy 'cleanOldDockerImages'// Сначала соберет JAR, потом создаст образ
 }
 
@@ -136,6 +136,7 @@ tasks.named('jibDockerBuild') {
 tasks.register('cleanOldDockerImages', Exec) {
     commandLine 'docker', 'image', 'prune', '-f'
 }
+
 
 jib {
     from {

@@ -1,7 +1,6 @@
 package org.javaguru.travel.insurance.core.blacklist.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,11 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class BlackListResponse extends CoreResponse {
+public class ValidationError {
 
-    private String personFirstName;
-    private String personLastName;
-    private String personCode;
-    private Boolean blackListed;
+    private String errorCode;
+    private String description;
 }

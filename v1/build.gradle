@@ -13,26 +13,46 @@ repositories {
 }
 
 dependencies {
+	// Базы данных
 	implementation 'mysql:mysql-connector-java:8.0.33'
-	implementation 'org.hibernate:hibernate-core:6.5.0.Final'
-	implementation('com.h2database:h2:2.2.224')
-	implementation ('org.liquibase:liquibase-core:4.27.0')
-	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+	implementation 'com.h2database:h2:2.2.224'
+	implementation 'org.liquibase:liquibase-core:4.27.0'
+
+	// Spring Boot starters
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.5'
 	implementation 'org.springframework.boot:spring-boot-starter-web:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Hibernate
+	implementation 'org.hibernate:hibernate-core:6.5.0.Final'
+
+	// Логирование
 	implementation 'org.slf4j:slf4j-api:2.0.9'
 	implementation 'ch.qos.logback:logback-classic:1.5.13'
 	implementation 'ch.qos.logback:logback-core:1.5.13'
+
+	// Jackson (JSON/XML)
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+	// Вспомогательные библиотеки
 	implementation 'com.google.guava:guava:32.1.3-jre'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+	// Тестирование
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.5'
 	testImplementation 'com.h2database:h2:2.2.224'
-	testImplementation "net.javacrumbs.json-unit:json-unit-assertj:2.38.0"
+	testImplementation 'uk.org.webcompere:model-assert:1.0.0'
+	testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.38.0'
 	testCompileOnly 'org.projectlombok:lombok:1.18.32'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
-	implementation('org.springframework.boot:spring-boot-starter-thymeleaf:3.2.5')
 }
+
 
 test {
 	useJUnitPlatform()

@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableScheduling
 @SpringBootApplication
-public class InsuranceApplication {
+public class InsuranceApplicationV2 {
 
     public static void main(String[] args) {
-        SpringApplication.run(InsuranceApplication.class, args);
+        SpringApplication.run(InsuranceApplicationV2.class, args);
     }
 
 }

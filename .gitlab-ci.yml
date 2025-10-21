@@ -1,23 +1,20 @@
-# .gitlab-ci.yml
-
 stages:
   - build
   - test
-  - deploy
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 cache:
   paths:
-    - .m2/repository/
-    - target/
+    - .gradle/
+    - build/
 
 build:
   stage: build
-  image: maven:3.8-openjdk-17
+  image: gradle:jdk17-alpine
   script:
-    - mvn compile
+    - gradle compileJava
   tags:
     - docker
   only:
@@ -27,24 +24,12 @@ build:
 
 test:
   stage: test
-  image: maven:3.8-openjdk-17
+  image: gradle:jdk17-alpine
   script:
-    - mvn test
+    - gradle test
   tags:
     - docker
   only:
     - main
     - master
     - merge_requests
-
-deploy:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - echo "Деплой приложения"
-    - echo "Здесь могут быть команды деплоя на сервер"
-  tags:
-    - docker
-  only:
-    - main
-    - master

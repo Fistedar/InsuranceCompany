@@ -10,7 +10,7 @@ cache:
 
 build:
   stage: build
-  image: gradle:jdk17-alpine
+  image: gradle:8.11.1-jdk21-alpine
   script:
     - chmod +x ./gradlew
     - ./gradlew compileJava
@@ -24,7 +24,7 @@ build:
 
 test:
   stage: test
-  image: gradle:jdk17-alpine
+  image: gradle:8.11.1-jdk21-alpine
   script:
     - chmod +x ./gradlew
     - ./gradlew test

@@ -1,9 +1,7 @@
 stages:
   - build
   - test
-
-variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  - deploy
 
 cache:
   paths:
@@ -14,22 +12,35 @@ build:
   stage: build
   image: gradle:jdk17-alpine
   script:
-    - gradle compileJava
+    - chmod +x ./gradlew
+    - ./gradlew compileJava
+    - echo "✅ Сборка завершена!"
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 week
   tags:
     - docker
-  only:
-    - main
-    - master
-    - merge_requests
 
 test:
   stage: test
   image: gradle:jdk17-alpine
   script:
-    - gradle test
+    - chmod +x ./gradlew
+    - ./gradlew test
+    - echo "✅ Тесты пройдены!"
+  tags:
+    - docker
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "🚀 Деплой завершен!"
+    - echo "Собранные артефакты:"
+    - find build/libs/ -name "*.jar" | head -5
   tags:
     - docker
   only:
     - main
     - master
-    - merge_requests

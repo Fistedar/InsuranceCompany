@@ -7,18 +7,20 @@ cache:
   paths:
     - .gradle/
     - build/
+  key: ${CI_COMMIT_REF_SLUG}
 
 build:
   stage: build
   image: gradle:8.11.1-jdk21-alpine
   script:
     - chmod +x ./gradlew
-    - ./gradlew compileJava
+    - ./gradlew build -x test  # ← Собираем JAR но пропускаем тесты
     - echo "✅ Сборка завершена!"
+    - find . -name "*.jar" | head -10  # ← Проверим что собралось
   artifacts:
     paths:
-      - build/libs/*.jar
-    expire_in: 1 week
+      - build/libs/  # ← Вся папка с артефактами
+    expire_in: 1 days
   tags:
     - docker
 
@@ -34,13 +36,17 @@ test:
 
 deploy:
   stage: deploy
-  image: alpine:latest
+  image: gradle:8.11.1-jdk21-alpine
   script:
-    - echo "🚀 Деплой завершен!"
-    - echo "Собранные артефакты:"
-    - find build/libs/ -name "*.jar" | head -5
+    - echo "🚀 Начинаем деплой..."
+    - echo "Собранные JAR файлы:"
+    - find build/libs/ -name "*.jar" | head -10
+    - ls -la build/libs/
+    - echo "✅ Деплой завершен!"
   tags:
     - docker
   only:
     - main
     - master
+  dependencies:
+    - build

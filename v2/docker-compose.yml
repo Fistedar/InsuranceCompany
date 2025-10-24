@@ -17,7 +17,6 @@ services:
     ports:
       - "3306:3306"
 
-
   black_list_db:
     networks: [ insurance-network ]
     container_name: black-list-mysql-container
@@ -44,7 +43,7 @@ services:
       - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29093  # Изменен порт
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
@@ -53,9 +52,39 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
     ports:
-      - "29092:29092"  # Для подключения с хоста
-      - "9092:9092"    # Для совместимости (если нужно)
+      - "29093:29093"
+      - "9093:9092"
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.0
+    networks: [ insurance-network ]
+    container_name: keycloak-container
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    ports:
+      - "8082:8080"
+    depends_on:
+      - keycloak_db
+    command: start-dev
+
+  keycloak_db:
+    image: postgres:15
+    networks: [ insurance-network ]
+    container_name: keycloak-postgres-container
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5432:5432"  # PostgreSQL для Keycloak
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+
+  # Существующие сервисы продолжаются...
   pdf-generator:
     networks: [ insurance-network ]
     image: pdf-generator-service:latest
@@ -63,7 +92,6 @@ services:
     depends_on:
       - kafka
     volumes:
-      # Связываем папку `./generated-pdfs` на хосте с `/app/generated-pdfs` в контейнере
       - ./generated-pdfs:/app/generated-pdfs
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
@@ -73,31 +101,42 @@ services:
     container_name: insurance-app
     image: insurance-calculator
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Оставляем как есть
     depends_on:
       - insurance_calculator_db
       - kafka
+      - keycloak  # Добавляем зависимость
     environment:
       SPRING_PROFILES_ACTIVE: mysql-container
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Для внутреннего подключения
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KEYCLOAK_URL: http://keycloak:8080  # Для внутренней коммуникации
+      KEYCLOAK_REALM: insurance-realm
+      KEYCLOAK_CLIENT_ID: insurance-calculator
 
   black-list-app:
     networks: [ insurance-network ]
     container_name: black-list-app
     image: black-list
     ports:
-      - "8081:8081"
+      - "8081:8081"  # Оставляем как есть
     depends_on:
       - black_list_db
+      - keycloak  # Добавляем зависимость
     environment:
       SPRING_PROFILES_ACTIVE: mysql-container
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: insurance-realm
+      KEYCLOAK_CLIENT_ID: black-list
 
   kafdrop:
     image: obsidiandynamics/kafdrop
     networks: [ insurance-network ]
     ports:
-      - "9000:9000"
+      - "9001:9000"
     environment:
       KAFKA_BROKERCONNECT: "kafka:9092"
     depends_on:
       - kafka
+
+volumes:
+  keycloak_db_data:

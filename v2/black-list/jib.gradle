@@ -1,0 +1,49 @@
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-alpine'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = 'black-list'
+        tags = [version]
+    }
+    container {
+        appRoot = '/app'
+        ports = ['8080']
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        user = '1000:1000'
+
+        jvmFlags = [
+                '-Xms256m',
+                '-Xmx512m',
+                '=XX:MaxRamPercentage=75.0',
+                '-Djava.security.egd=file:/dev/./urandom'
+        ]
+        extraDirectories {
+            paths = [
+                    file('wait-for-it.sh')
+            ]
+            permissions = [
+                    '/wait-for-it.sh': '755'
+            ]
+        }
+        entrypoint = [
+                "./wait-for-it.sh",
+                "black-list-mysql-container:3306",
+                "--timeout=60",
+                "--",
+                "java",
+                "-jar",
+                "black-list-1.0.1.jar"
+        ]
+        labels = [
+                'maintainer': 'Fistedar-PC',
+                'version'   : project.version
+        ]
+    }
+}

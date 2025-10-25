@@ -44,6 +44,9 @@ dependencies {
     testImplementation("org.apache.pdfbox:pdfbox:2.0.27")
 }
 
+// Конфигурация Jib файла
+apply from: 'jib.gradle'
+
 bootJar {
     enabled = true
     archiveFileName = "pdf-generator-service-${project.version}.jar"
@@ -57,32 +60,4 @@ tasks.named('jibDockerBuild') {
 // Регистрируем задачу для удаления старых образов
 tasks.register('cleanOldDockerImages', Exec) {
     commandLine 'docker', 'image', 'prune', '-f'
-}
-
-jib {
-    from {
-        image = 'eclipse-temurin:21-jre'
-    }
-    to {
-        image = 'pdf-generator-service' // Имя образа
-        tags = [version]
-    }
-    container {
-        ports = ['8081'] // Порт приложения
-        extraDirectories {
-            paths = ['build/libs', '.']
-            permissions = [
-                    '/pdf-generator-service-0.0.1.jar': '755', // Укажите имя вашего JAR
-                    '/wait-for-it.sh': '755'
-            ]
-        }
-        entrypoint = [
-                "./wait-for-it.sh",
-                "kafka:9092", // Ожидание Kafka
-                "--",
-                "java",
-                "-jar",
-                "pdf-generator-service-0.0.1.jar" // Замените на имя JAR
-        ]
-    }
 }

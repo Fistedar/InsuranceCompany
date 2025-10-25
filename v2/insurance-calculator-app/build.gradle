@@ -54,6 +54,9 @@ test {
     useJUnitPlatform()
 }
 
+// Конфигурация Jib файла
+apply from: 'jib.gradle'
+
 // Конфигурация для Thin JAR (без зависимостей)
 jar {
     enabled = false // Отключен, так как используем bootJar
@@ -67,52 +70,6 @@ jar {
 bootJar {
     enabled = true
     archiveFileName = "insurance-calculator-${project.version}.jar"
-}
-
-// Конфигурация для Fat WAR (со встроенными зависимостями)
-//war {
-//    enabled = false // Отключен, так как используем bootJar
-//    archiveBaseName = 'insurance-fat'
-//    from {
-//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-//    }
-//}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // Указываем, какой артефакт публикуем (Fat JAR из Spring Boot)
-            artifact bootJar
-
-            // Координаты Maven (как в <groupId>, <artifactId>, <version>)
-            groupId = 'org.javaguru'
-            artifactId = 'insurance-calculator'
-            version = version
-
-            // Метаданные для pom.xml
-            pom {
-                name = 'Insurance Calculator Application'
-                description = 'Application to calculate travel insurance premium'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        mavenLocal()  // Публикуем в локальный Maven-репозиторий (~/.m2/repository)
-        // Альтернатива: удалённый репозиторий (Nexus/Artifactory)
-        // maven {
-        //     url "https://repo.example.com/releases"
-        //     credentials {
-        //         username = "user"
-        //         password = "password"
-        //     }
-        // }
-    }
 }
 
 tasks.register('k6Test', Exec) {
@@ -133,33 +90,33 @@ tasks.register('cleanOldDockerImages', Exec) {
     commandLine 'docker', 'image', 'prune', '-f'
 }
 
-jib {
-    from {
-        image = 'eclipse-temurin:21-jre'
-    }
-    to {
-        image = 'insurance-calculator'
-        tags = [version]
-    }
-    container {
-        ports = ['8080']
-        extraDirectories {
-            paths = ['build/libs', '.']  // jar в build/libs, скрипт в корне
-            permissions = [
-                    '/insurance-calculator-1.0.2.jar': '755',
-                    '/wait-for-it.sh': '755'
-            ]
-        }
-        entrypoint = [
-                "./wait-for-it.sh",
-                "insurance-mysql-container:3306",
-                "--",
-                "./wait-for-it.sh",
-                "kafka:9092",
-                "--",
-                "java",
-                "-jar",
-                "insurance-calculator-1.0.2.jar"
-        ]
-    }
-}
+//jib {
+//    from {
+//        image = 'eclipse-temurin:21-jre'
+//    }
+//    to {
+//        image = 'insurance-calculator'
+//        tags = [version]
+//    }
+//    container {
+//        ports = ['8080']
+//        extraDirectories {
+//            paths = ['build/libs', '.']  // jar в build/libs, скрипт в корне
+//            permissions = [
+//                    '/insurance-calculator-1.0.2.jar': '755',
+//                    '/wait-for-it.sh': '755'
+//            ]
+//        }
+//        entrypoint = [
+//                "./wait-for-it.sh",
+//                "insurance-mysql-container:3306",
+//                "--",
+//                "./wait-for-it.sh",
+//                "kafka:9092",
+//                "--",
+//                "java",
+//                "-jar",
+//                "insurance-calculator-1.0.2.jar"
+//        ]
+//    }
+//}

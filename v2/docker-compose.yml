@@ -16,6 +16,10 @@ services:
       MYSQL_PASSWORD: user_password
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   black_list_db:
     networks: [ insurance-network ]
@@ -28,6 +32,10 @@ services:
       MYSQL_PASSWORD: black_list_password
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
@@ -35,6 +43,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
 
   kafka:
     image: confluentinc/cp-kafka:7.3.0
@@ -43,7 +53,7 @@ services:
       - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29093  # Изменен порт
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
@@ -52,8 +62,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
     ports:
-      - "29093:29093"
-      - "9093:9092"
+      - "29092:29092"  # Для подключения с хоста
+      - "9092:9092"    # Стандартный порт для совместимости
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.0
@@ -66,7 +76,7 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
     ports:
-      - "8082:8080"
+      - "8082:8080"  # Keycloak на порту 8082
     depends_on:
       - keycloak_db
     command: start-dev
@@ -80,11 +90,15 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: keycloak
     ports:
-      - "5432:5432"  # PostgreSQL для Keycloak
+      - "5432:5432"
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Существующие сервисы продолжаются...
   pdf-generator:
     networks: [ insurance-network ]
     image: pdf-generator-service:latest
@@ -99,40 +113,61 @@ services:
   insurance-calculator-app:
     networks: [ insurance-network ]
     container_name: insurance-app
-    image: insurance-calculator
+    image: insurance-calculator:latest
     ports:
-      - "8080:8080"  # Оставляем как есть
+      - "8080:8080"  # Основное приложение
     depends_on:
-      - insurance_calculator_db
-      - kafka
-      - keycloak  # Добавляем зависимость
+      insurance_calculator_db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      keycloak:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: mysql-container
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KEYCLOAK_URL: http://keycloak:8080  # Для внутренней коммуникации
+      SPRING_DATASOURCE_URL: jdbc:mysql://insurance-mysql-container:3306/insurance_db
+      SPRING_DATASOURCE_USERNAME: insurance_user
+      SPRING_DATASOURCE_PASSWORD: user_password
+      KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: insurance-realm
       KEYCLOAK_CLIENT_ID: insurance-calculator
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   black-list-app:
     networks: [ insurance-network ]
     container_name: black-list-app
-    image: black-list
+    image: black-list:latest
     ports:
-      - "8081:8081"  # Оставляем как есть
+      - "8081:8081"  # Сервис черного списка
     depends_on:
-      - black_list_db
-      - keycloak  # Добавляем зависимость
+      black_list_db:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: mysql-container
+      SPRING_DATASOURCE_URL: jdbc:mysql://black-list-mysql-container:3306/black_list_db
+      SPRING_DATASOURCE_USERNAME: black_list_user
+      SPRING_DATASOURCE_PASSWORD: black_list_password
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: insurance-realm
       KEYCLOAK_CLIENT_ID: black-list
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   kafdrop:
     image: obsidiandynamics/kafdrop
     networks: [ insurance-network ]
     ports:
-      - "9001:9000"
+      - "9000:9000"  # UI для Kafka
     environment:
       KAFKA_BROKERCONNECT: "kafka:9092"
     depends_on:

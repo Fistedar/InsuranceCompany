@@ -58,6 +58,9 @@ test {
     useJUnitPlatform()
 }
 
+// Конфигурация Jib файла
+apply from: 'jib.gradle'
+
 // Конфигурация для Thin JAR (без зависимостей)
 jar {
     enabled = false // Отключен, так как используем bootJar
@@ -71,52 +74,6 @@ jar {
 bootJar {
     enabled = true
     archiveFileName = "black-list-${project.version}.jar"
-}
-
-// Конфигурация для Fat WAR (со встроенными зависимостями)
-//war {
-//    enabled = false // Отключен, так как используем bootJar
-//    archiveBaseName = 'insurance-fat'
-//    from {
-//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-//    }
-//}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // Указываем, какой артефакт публикуем (Fat JAR из Spring Boot)
-            artifact bootJar
-
-            // Координаты Maven (как в <groupId>, <artifactId>, <version>)
-            groupId = 'org.fistedar'
-            artifactId = 'black-list'
-            version = version
-
-            // Метаданные для pom.xml
-            pom {
-                name = 'Black List Application'
-                description = 'Black list app to add and check persons on black list'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        mavenLocal()  // Публикуем в локальный Maven-репозиторий (~/.m2/repository)
-        // Альтернатива: удалённый репозиторий (Nexus/Artifactory)
-        // maven {
-        //     url "https://repo.example.com/releases"
-        //     credentials {
-        //         username = "user"
-        //         password = "password"
-        //     }
-        // }
-    }
 }
 
 tasks.register('k6Test', Exec) {
@@ -135,33 +92,4 @@ tasks.named('jibDockerBuild') {
 // Регистрируем задачу для удаления старых образов
 tasks.register('cleanOldDockerImages', Exec) {
     commandLine 'docker', 'image', 'prune', '-f'
-}
-
-
-jib {
-    from {
-        image = 'eclipse-temurin:21-jre'
-    }
-    to {
-        image = 'black-list'
-        tags = [version]
-    }
-    container {
-        ports = ['8080']
-        extraDirectories {
-            paths = ['build/libs', '.']  // jar в build/libs, скрипт в корне
-            permissions = [
-                    '/black-list-1.0.1.jar': '755',
-                    '/wait-for-it.sh': '755'
-            ]
-        }
-        entrypoint = [
-                "./wait-for-it.sh",
-                "black-list-mysql-container:3306",
-                "--",
-                "java",
-                "-jar",
-                "black-list-1.0.1.jar"
-        ]
-    }
 }

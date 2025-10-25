@@ -1,0 +1,50 @@
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-alpine'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = "insurance-calculator"
+        tags = [project.version, 'latest']
+    }
+    container {
+        appRoot = '/app'
+        ports = ['8080']
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        user = '1000:1000'
+
+        jvmFlags = [
+                '-Xms256m',
+                '-Xmx512m',
+                '-XX:MaxRAMPercentage=75.0',
+                '-Djava.security.egd=file:/dev/./urandom'
+        ]
+
+        entrypoint = [
+                'sh', '-c',
+                """
+            ./wait-for-it.sh insurance-mysql-container:3306 --timeout=60 --strict -- echo "MySQL is ready" && \\
+            ./wait-for-it.sh kafka:9092 --timeout=60 --strict -- echo "Kafka is ready" && \\
+            ./wait-for-it.sh keycloak:8080 --timeout=120 --strict -- echo "Keycloak is ready" && \\
+            java -jar insurance-calculator-${project.version}.jar
+            """
+        ]
+
+        extraDirectories {
+            paths = [
+                    file('wait-for-it.sh')
+            ]
+            permissions = ['/app/wait-for-it.sh': '755']
+        }
+
+        labels = [
+                'maintainer': 'Fistedar-PC',
+                'version'   : project.version
+        ]
+    }
+}

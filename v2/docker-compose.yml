@@ -18,8 +18,10 @@ services:
       - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
       timeout: 20s
-      retries: 10
+      retries: 5
+      start_period: 40s
 
   black_list_db:
     networks: [ insurance-network ]
@@ -34,8 +36,10 @@ services:
       - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
       timeout: 20s
-      retries: 10
+      retries: 5
+      start_period: 40s
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
@@ -50,7 +54,8 @@ services:
     image: confluentinc/cp-kafka:7.3.0
     networks: [ insurance-network ]
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_started
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
@@ -64,6 +69,12 @@ services:
     ports:
       - "29092:29092"  # Для подключения с хоста
       - "9092:9092"    # Стандартный порт для совместимости
+    healthcheck:
+      test: [ "CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 40s
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.0
@@ -76,10 +87,16 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
     ports:
-      - "8082:8080"  # Keycloak на порту 8082
+      - "8082:8080"
     depends_on:
       - keycloak_db
     command: start-dev
+    # healthcheck:
+    #   test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health/ready || exit 1" ]
+    #   interval: 30s
+    #   timeout: 20s
+    #   retries: 5
+    #   start_period: 60s
 
   keycloak_db:
     image: postgres:15
@@ -96,19 +113,28 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U keycloak"]
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 20s
+      retries: 5
+      start_period: 40s
 
   pdf-generator:
     networks: [ insurance-network ]
     image: pdf-generator-service:latest
     container_name: pdf-generator
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     volumes:
       - ./generated-pdfs:/app/generated-pdfs
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    command: ["sh", "-c", "find /app -name '*.jar' -exec java -jar {} \\;"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 40s
 
   insurance-calculator-app:
     networks: [ insurance-network ]
@@ -120,7 +146,7 @@ services:
       insurance_calculator_db:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       keycloak:
         condition: service_started
     environment:
@@ -135,8 +161,12 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 20s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - insurance_db_data:/var/lib/mysql
+      - insurance_logs:/app/logs
 
   black-list-app:
     networks: [ insurance-network ]
@@ -160,8 +190,12 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 20s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - black_list_db_data:/var/lib/mysql
+      - black_list_logs:/app/logs
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -175,3 +209,7 @@ services:
 
 volumes:
   keycloak_db_data:
+  insurance_db_data:
+  black_list_db_data:
+  black_list_logs:
+  insurance_logs:

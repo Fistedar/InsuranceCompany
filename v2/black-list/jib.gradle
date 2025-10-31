@@ -12,11 +12,14 @@ jib {
         image = 'black-list'
         tags = [version]
     }
+    extraDirectories {
+        paths = [file('build/libs')]
+        permissions = ['black-list-${project.version}.jar': '755']
+    }
     container {
         appRoot = '/app'
         ports = ['8080']
         creationTime = 'USE_CURRENT_TIMESTAMP'
-        user = '1000:1000'
 
         jvmFlags = [
                 '-Xms256m',
@@ -24,26 +27,12 @@ jib {
                 '=XX:MaxRamPercentage=75.0',
                 '-Djava.security.egd=file:/dev/./urandom'
         ]
-        extraDirectories {
-            paths = [
-                    file('wait-for-it.sh')
-            ]
-            permissions = [
-                    '/wait-for-it.sh': '755'
-            ]
-        }
         entrypoint = [
-                "./wait-for-it.sh",
-                "black-list-mysql-container:3306",
-                "--timeout=60",
-                "--",
-                "java",
-                "-jar",
-                "black-list-1.0.1.jar"
+                "java", "-jar", "black-list-${project.version}.jar"
         ]
         labels = [
                 'maintainer': 'Fistedar-PC',
-                'version'   : project.version
+                'version': project.version as String
         ]
     }
 }

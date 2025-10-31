@@ -12,6 +12,10 @@ jib {
         image = 'pdf-generator-service' // Имя образа
         tags = [version]
     }
+    extraDirectories {
+        paths = [file('build/libs')]
+        permissions = ['pdf-generator-service-${project.version}.jar': '755']
+    }
     container {
         appRoot = '/app'
         ports = ['8081']
@@ -24,26 +28,12 @@ jib {
                 '-XX:MaxRAMPercentage=75.0',
                 '-Djava.security.egd=file:/dev/./urandom'
         ]
-        extraDirectories {
-            paths = [
-                    file('wait-for-it.sh')
-            ]
-            permissions = [
-                    '/wait-for-it.sh': '755'
-            ]
-        }
         entrypoint = [
-                "./wait-for-it.sh",
-                "kafka:9092",
-                "--timeout=60",
-                "--",
-                "java",
-                "-jar",
-                "pdf-generator-service-0.0.1.jar" // Замените на имя JAR
+                "java", "-jar", "pdf-generator-service-${project.version}.jar" // Замените на имя JAR
         ]
         labels = [
                 'maintainer': 'Fistedar-PC',
-                'version'   : project.version
+                'version': project.version as String
         ]
     }
 }
